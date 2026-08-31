@@ -1,0 +1,165 @@
+Git Hub Steps to add file in git hub:
+
+1. Create branch in Git hub as per Jira number: DI-1557_Jan_2  
+
+git clone git@github.uscc.com:dbautomation/bods_sql.git -b DI-1557_Jan_2 DI-1557_Jan_2
+
+git branch
+
+git status
+
+ls -lrt
+
+2. cd to partitcular location:
+cd /home/tkalo001/jan_2/DI-1557_Jan_2/SQL_CODE/APP_SHARE/table
+
+3. create file:
+vi bods-network_migration-migration_imei_software_version-ddl.sql
+git add bods-network_migration-migration_imei_software_version-ddl.sql
+git status
+git add bods-network_migration-migration_imei_software_version-ddl.sql
+git pull
+git push
+********************************************************************************************************************************
+
+Git steps:
+git clone git@github.uscc.com:DataIntegration/network_migration.git
+
+go inside the folder then
+
+git fetch origin
+git checkout -b DI-1557 origin/DI-1557
+
+git branch -a      --to check the checkout branch
+
+Checkin the informatica code
+
+git add .
+git status
+git commit -m"DI-1557 #logic change for device_imei_1"
+
+git push
+********************************************************************************************************************************
+git clone git@github.uscc.com:DataIntegration/network_migration.git
+   14  git fetch origin
+   15  pwd
+   16  cd network_migration
+   17  git fetch origin
+   18  git checkout -b DI-1557 origin/DI-1557
+   19  pwd
+   20  . /apps/informat/infa_scm/config/infa_scm_export.env; pmrep connect -r rep_di_dev_mdr01infa1 -h sdr01infa1 -o 6005 -n $INFORMATICA_USER -X INFORMATICA_PASSWORD
+   21  ls -lrt /home/tkalo001/network_migration/informatica/network_migration.xml
+   22  pwd
+   23  git fetch origin
+   24  git branch -a
+   25  pmrep objectexport -f network_migration -u /home/tkalo001/network_migration/informatica/network_migration.xml
+   26  cd /home/tkalo001/network_migration/informatica
+   27  ls -lrt
+   28  xmllint --noout network_migration.xml
+   29  pwd
+   30  git add .
+   31  git status
+   32  git commit -m"DI-1557 #logic change for device_imei_1"
+   33  git push
+
+
+****************************************************************************
+Informatica Code Push:
+Login into putty dev1:
+. /apps/informat/infa_scm/config/infa_scm_export.env; pmrep connect -r rep_di_dev_mdr01infa1 -h sdr01infa1 -o 6005 -n $INFORMATICA_USER -X INFORMATICA_PASSWORD
+
+ls -lrt /home/tkalo001/revenue_recognition_pob/informatica/revenue_recognition_pob.xml
+Before Export 10531 KB(10783589) 10788052 10788052
+
+pmrep objectexport -f revenue_recognition_pob -u /home/tkalo001/revenue_recognition_pob/informatica/revenue_recognition_pob.xml
+
+cd /home/tkalo001/revenue_recognition_pob/informatica
+
+xmllint --noout revenue_recognition_pob.xml
+
+***************************************************************************************
+SQL Login to check 
+diown:/apps/diown/Tuushar_Onboarding_Excercis/sql->. /apps/diown/env/config/di.env;
+diown:/apps/diown/Tuushar_Onboarding_Excercis/sql->sqlplus /@BODS_DI_APP
+sqlplus "tkalo001/\$atKabir\$\$\$555@//bodsdev1.uscc.com:1530/bodsdev1_adhoc"
+SQL> @bods-SYSTEM-PROCESSNAME-dml.sql
+
+
+
+
+***************************************************************************************
+Dactical Process: For Network_migration code
+1.blow away (delete) the branch you just created, so you can start over
+2.create a new branch, okay to name it DI-1557_30-DEC
+3.change the ddl that contains the view definition and add permissions for the view
+4.check in the ddl for the unified table + view
+5.check in the ddl for the imei_software_version
+6.create pull rewquest re-using the deploy label from 3 weeks ago (code not yet deployed to prod from 3 weeks agao):  Deploy label:di_db_network_migration-1.0.5
+7.get dba to approve the pull request
+8.once approved, merge to the integration branch and set release as latest
+9.then create a build for the integration branch and this build is di_db_network_migration-1.0.6    (one more than the one from 3 weeks ago)
+10.Await this release to get built for datical via Jenkins and a success email to occur before proceeding with the pull request for the main DI system changes.
+11.go to network_migration and check in github application code there, pull request needs to have the datical build in the comments:  Datical Build Dependency:bods_sql:di_db_network_migration-1.0.6
+****************************************************************************************
+1)  https://qualitycenterserver/qcbin/    defect#189120 for the same.    
+ 
+2) Make changes in informatica level save it and test it -------Done
+ 
+3)Git clone 
+git clone -b DI-1560 git@github.uscc.com:DataIntegration/device_protection.git
+ 
+4)checkout branch 
+git checkout -b DI-1454 origin/DI-1454
+makes changes in sql/infa/tws
+5)git add .
+ 
+6)import informatica.xml
+ 
+7)check size 
+ls -lrt /home/tkalo001/revenue_recognition_pob/informatica/revenue_recognition_pob.xml
+git commit
+8)git push 
+9)check changes in github 
+10)send pull request
+(opence approval)
+11)then create build with +1 in bug fix 
+12)check in jenkins build
+ 
+13)update status in QC
+and drop mail
+
+*************************************************************************************
+CREATE PUBLIC SYNONYM MIGRATION_DEVICE_SOFTWARE_VERSION FOR APP_SHARE.MIGRATION_DEVICE_SOFTWARE_VERSION;
+*************************************************************************************
+ALTER SESSION SET NLS_DATE_FORMAT = 'YYYY-MM-DD HH24:MI:SS';
+
+Process Launcher Framework Tables
+
+
+SELECT * FROM PROCESS_DEF; DESC PROCESS_DEF;
+ 
+SELECT * FROM GLOBAL_PARM; desc GLOBAL_PARM;
+
+select * from PROCESS_PARM; desc PROCESS_PARM;
+
+select * from PROCESS_DELTA_CTRL; desc PROCESS_DELTA_CTRL;
+
+select * from PROCESS_RUN_DETAIL; desc PROCESS_RUN_DETAIL;
+
+SELECT * FROM all_DB_LINKS;--DWETE2.USCC.COM
+
+*********************************************************************************************
+Pull request comment Part
+#For dependency on Datical builds, enter GitHub Release this is dependent on. Ex: BODS_SQL-1.0.0.
+Datical Build Dependency:< Add Datical GitHub repository:GitHub Release dependency here > 
+
+***********************************************************************************************
+Jenking Build Link:
+https://jenkins.uscc.com/job/SCM/job/DataIntegration/job/DataIntegration-release/job/network_migration/view/tags/job/3.2.2/
+
+
+
+
+
+
+
