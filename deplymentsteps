@@ -1,0 +1,259 @@
+DI-1543
+
+It appears that after T-Launch, PPODA activations won't occur anymore. 
+ODA_ACTIVATION table in app_share won't be dropped so there is no urgency to retire this process. 
+But the cyclical job could be retired as its waste of resources (oda_activation_update process)
+There is piece of code in m_crdt_rqst_subs_detail_stg_load that reads from this table. 
+Plan is to not touch this as the overhead to test this will be more. 
+Given that the table stays, we could let it be. 
+This information is to only capture that this was discussed.
+
+Job to be retired - m_oda_activation_update process
+Table to keep - ODA_ACTIVATION table in app_share
+mapping - m_oda_activation_update
+session - s_oda_activation_update
+
+system = credit_hub
+
+Latest version - 16.3.2
+
+Source:-
+1. ODA_ACTIVATION
+2. TBAP_ITEM_NOLOB_MV1
+
+Target:-
+1. ODA_ACTIVATION
+------------------------------
+
+Retiring Steps - 
+1. Bringing latest job from PROD to DEV through CDA.
+2. (Add this in CRQ Doc.)Decommission the job by raising access in Digital Workplace. Search Batch Job Request, fill details:
+   Expected completion by: 
+   This request needs to be completed by
+   Provide request details
+   Requested implementation date. (The Infra Ops Team will contact you with any questions or concerns regarding the requested date.) *
+   Have you completed and attached the Batch Job Request Form to this request? See instructions for Link *
+   
+   Acknowledged
+   What is the project time entry code (NA if not applicable)? *
+   Additional Details *
+   Large attachments (2 MB and more) can take more time to upload
+2. Took a backup of 'm_oda_activation_update' workflow in my local folder.
+3. Checked dependencies of source and target and they are dependendent, tws dependency and no dependency of TWS file.
+size check before delete - -rw-r--r-- 1 diown diown 4822552 Jun 18 10:20 credit_hub.xml
+tws - DI-ODA_ACT_UPD.sched
+    - DI-ODAUPD.res
+   Checked mapplets and transformation dependencies also
+4. created git branch
+5. git clone to home folder - git clone git@github.uscc.com:DataIntegration/credit_hub.git
+6. Deletion of mapping is done.
+7. Regression Testing - 
+   select * from process_def where PROCESS_COMMAND LIKE 'credit_hub:%' AND PROCESS_TYPE = 'TALEND' ;
+
+   m_crdt_rqst_promo_stack_stg_load - TBAP_ITEM_NOLOB_MV(source)
+   
+   . /apps/diown/env/config/di.env; /apps/diown/util/bin/process_launcher.pl -pcrdt_rqst_promo_stack_stg_load
+   
+   m_crdt_rqst_subscriber_stg_load - TBAP_ITEM_NOLOB_MV(source)
+   
+   . /apps/diown/env/config/di.env; /apps/diown/util/bin/process_launcher.pl -pcrdt_rqst_subscriber_stg_load
+   
+   m_crdt_rqst_subs_detail_stg_load - Source:- ODA_ACTIVATION, TBAP_ITEM_NOLOB_MV, TBAP_ITEM_NOLOB_MV1
+
+   . /apps/diown/env/config/di.env; /apps/diown/util/bin/process_launcher.pl -pcrdt_rqst_subs_detail_stg_load
+
+7. git branch -a
+   git checkout DI-1543   
+
+8. Removal of sql/tws whatever changes you want using git rm (filename) is done after git is cloned.
+   git rm bods-credit_hub-oda_activation_update-dml.sql
+   git rm DI-ODA_ACT_UPD.sched
+   git rm DI-ODAUPD.res
+   
+9. Export 
+   enter into informatica folder and note size before changes
+   -rw-r--r-- 1 vniko001 users 4822552 Nov 19 14:16 credit_hub.xml
+   pmrep objectexport -f credit_hub -u /home/vniko001/credit_hub/informatica/credit_hub.xml
+   after changes size check:- -rw-r--r-- 1 vniko001 users 4799439 Nov 19 14:37 credit_hub.xml
+   xmllint --noout credit_hub.xml
+
+10. git commit -m"DI-1543 #comment retiring oda_activation_update process"
+    git push origin DI-1543
+
+12. Code review and test doc. uploaded 
+
+13. Failure due to xml file didnt checked in
+    git add .
+    git status
+    git commit -m"DI-1543 #comment retiring oda_activation_update process for xml"
+    git push origin DI-1543
+
+14. Code review on same PR raised earlier, approval is pending
+    https://github.uscc.com/DataIntegration/credit_hub/pull/43
+
+15. Tag is created 
+    new version - 16.4.2
+    old version - 16.3.2
+	
+16. Build in Jenkins took full run time: ~8min 6s and can locate at https://cicd-builds-dashboard/it-release-builds
+	
+17. JFrog - credit_hub-16.4.2.tar
+
+18. Dev Testing - CDA new build is deploy to dev.
+
+19. CRQ - Normal Change
+
+IP_Plan:  
+Notes
+
+Process to be retired: oda_activation_update
+
+1. Development
+   Jira ticket: DI-1543
+   Build: credit_hub-16.4.2
+   
+2. Datical Build: N/A
+   
+3. This change is retiring oda_activation_update process as its waste of resources.
+   Today we cannot do: N/A  
+   With this change it allows us to retire the workflow. 
+   The business impact: As such no impact
+   
+4. This change was certified in SUP1 environment by Rahul Salve by doing regression testing.
+
+5. Front line communication is not required
+
+6. This change will be deployed to KPR01INFA1 server
+
+7. All resources are lined up for this change
+
+8. An early shutdown IS NOT required.
+
+9. This change will be verified by Haritha Venkatesan by regression testing in informatica.
+
+10. A bounce IS NOT required.
+
+11. The back out plan is in the SMART ticket.  It will take 30 minutes to complete.  
+    We will know by 11 A.M. if it is needed and can be backed out and verified within the maintenance window.
+
+12. Does this change impact Billing and have we gained their sign off ?: NO
+
+13. This change is tied to SMART ticket ###. (if applicable): NONE
+
+14. DI team executes its jobs in batch mode in the evening. 
+    The deployment during the day is lowest risk and the entire team is on site to support if any issues arise.
+	
+summary - Retirement of oda_activation_update process
+----------------------
+
+Install Plan
+Install plan is attached.
+
+Business justification
+This change is performed as it appears that after T-Launch, PPODA activations won't occur anymore.
+
+Backout plan
+Part of the install plan document. Previous build credit_hub-16.3.2 to be deployed in CDA in case of issues between 10:00 A.M. and 10:45 A.M. CT.
+Backout start time: 11:01 A.M.
+Duration: 30 minutes (Note: Install Plan is attached)
+
+Risk assessment
+The risk is medium because retired workflow's sources has dependencies on other workflows.
+
+Service Impact Assessment
+This is batch data processing which does not impact any services. DI team executes its jobs in batch mode in the evening.  The deployment during the day is lowest risk and the entire team is on site to support if any issues arise.
+
+Configuration audit
+Related to Informatica ETL code.
+
+Development
+Jira ticket: DI-1543
+Build: credit_hub-16.4.2
+
+General information
+Business Approval is attached (Note: EXTERNALT-Launch - Prepaid - decommission activation for ePAY.msg doc. is attached)
+
+Test Plan
+Tested in which Non-Prod/Dev environment - dev2
+Testing Results: Passed
+Tester: Rahul Salve
+
+------------------------------
+
+20. CRQ - CRQ000000875021 is raised for 10 dec. and build is promoted to prod in JFrog .
+
+1. JFROG - credit_hub-16.4.2.tar(prod)
+
+2. Fencing
+Infra ops details - 
+name :Vibha Nikose
+contact no :09118657002867
+subject :Please fence the workstation
+email:vibha.nikose@uscellular.com
+copy email:USCDLDataIntegration@uscellular.com, TMOITOInfraOps@int.amdocs.com
+
+Please select an option:other
+
+Environment:PROD
+
+Please Select Request Type:fence
+
+Please enter the job/process/stream/daemon name:
+system - credit_hub
+process name - oda_activation_update
+
+
+** Please enter the details of your request: ***
+Please fence the workstation :kpr01infa1
+
+Does this need to be executed immediately or at a future time?
+-->immediate
+
+#submit --Your request ticket number is: 41605
+
+check tws fence - 100
+check database - 
+select * from process_run_detail 
+where system='credit_hub' and process_name = 'oda_activation_update'
+order by run_start_date desc;
+
+Deploy in CDA Manually
+
+unfencing -
+
+name : Vibha Nikose
+contact no : 09118657002867
+subject : Please fence the workstation
+email: vibha.nikose@uscellular.com
+copy email: USCDLDataIntegration@uscellular.com, TMOITOInfraOps@int.amdocs.com
+
+Please select an option:other
+
+Environment:PROD
+
+Please Select Request Type:fence
+
+Please enter the job/process/stream/daemon name:
+system - credit_hub
+process name - oda_activation_update
+
+
+** Please enter the details of your request: ***
+Please unfence the workstation: kpr01infa1
+
+Does this need to be executed immediately or at a future time?
+-->immediate
+
+#submit  -Your request ticket number is: 41606
+
+Check changes in informatica and make status as inactive in process_def in both DEV and PROD
+SQL: select * from process_def where system = 'credit_hub' and process_name = 'oda_activation_update';
+
+     update process_def
+     set status = 'INACTIVE'
+     where process_name = 'oda_activation_update'
+     and PROCESS_COMMAND = 'credit_hub:W_oda_activation_update';
+
+Github - merge into master and delete old branch and set as pre-release
+
+CRQ - closing of CRQ
