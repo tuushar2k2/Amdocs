@@ -1,0 +1,343 @@
+Never Run CDA eachday b/w 8:30 to 9:00 P.M. IST:
+
+First bring Job from Prod to Dev through CDA Run
+
+Before deploying from Prod to dev, 
+check latest version in Github and Informatica, also check no one has logged in the respective system(Repository Folder)
+
+Fence: Always check if we require fencing or not for your system deploying based on if the job is cyclic. 
+       If require fencing then write it in IP plan doc. along with timing required for fencing and unfencing. In case of fencing required do not schedule the CDA deployment, do it manually.
+       Fencing steps in detail are given below.
+       
+UNIX TOOL
+1. Command to generate SSH Key: (Perform this step One Time only)
+   Create soft link : ln -s /apps/diown/support/vniko001 /home/vniko001/support
+                   $ mkdir ~/.ssh 
+                   $ chmod 700 ~/.ssh 
+                   $ ssh-keygen –t rsa -f ~/.ssh/id_rs
+
+SSH Key format:- ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC1Gz8TgDQVPIod7oZ1xfFb2+TtLfLipVS/3CaRXSvSSAXbMMjYqAgNmc95ClmxzHaUpekLtQB+TlevFQzflU2IrGvhfH5Lo974UxDhCB241R+Q2XztqJOQgQIEw1DwkSk57N/6DTU91l6B6UIYFdosbsJdJBX7fl/fkFF7ATThvoNNKXFUIYZufwxQBnOEWWQeo7j1fU58tG3SL3E1Qu5D5ljWd+nQejBoemBNMjDOQCQO3/Y/WGzFhKCWTHnM0tTVplLBAn71twXVJjuQrQpUS3IFq1mMHh3TO5LdQyhCJuTuUBF7DCJLQjgc0uLqmSqGpd85Dnz+/xMK9KrmpNd7 vniko001@sdr01infa1
+
+2. To config GIT(Perform this step One Time only):
+                 git config --global user.name "vniko001"
+                 git config --global user.email "vibha.nikose@uscellular.com"
+
+GITHUB TOOL
+3. Branch Creation: create git branch in GITHUB in your system with JIRA Ticket Number - 'DI-1428':
+
+UNIX TOOL
+4. To clone git(cloning system in your home folder): git clone git@github.uscc.com:DataIntegration/wdh_bill_feed.git (url copied from your created branch in respective system in 'CODE' button(Green Colour))
+
+5. To fetch original git branch into UNIX: go to respective system and run command - git fetch origin
+
+6. GIT checkout command: git checkout -b DI-1428 origin/DI-1428
+
+7. To check list of branch(Optional): git branch -a
+
+8. To switch to your branch(Optional): git checkout DI-1428
+
+9. Make changes in CODE(SQL/INFORMATICA/TALEND) as per requirement through UNIX.
+
+10. GIT Add (To add changes to GIT): git add sql/bods-wdh_bill_feed-wdh_monthly_bill_feed_pre-dml.sql
+
+11. GIT Commit (To commit changes to GIT): git commit -m"DI-1428 #comment remove infra ops" (comment should always be in small case )
+
+12. GIT Push (To push changes to GIT): git push origin DI-1428
+
+GITHUB TOOL
+13. GITHUB(Pull Request): After pushing into GIT through UNIX, Open GITHUB 
+                          Confirm changes and raise pull request
+                          Get pull request approved from CODE OWNERS.
+
+JIRA TOOL  
+14. Code Build Precautions: Check:
+                            OLD Code: JIRA Ticket version(REL51.000.001) 
+                            NEW Code: JIRA Ticket version(REL52.000.000) 
+                            if it is mentioned or not and if not mentioned 
+                            then do it manually change before moving to pre-release status in GITHUB. 
+GITHUB TOOL    
+15. Code Build in GITHUB: Go to system in GIT and click TAG --> Releases --> Draft a new release --> change target from 'MASTER' to 'your branch name' 
+                          --> choose a tag --> Give version no --> enable 'set as a pre-release' --> Publish release
+                          -You will see your job as pre-release
+
+JENKINS TOOL
+16. Jenkins Build Link: https://login.uscellular.com/idp/SSO.saml2?SAMLRequest=nVLBTuswEPwVy%2FckbtoUYjVFfQ8hkIqomsDhXZ5cd0MNzrp4nQr%2BnjRtBVx64GLJ3pnd2RlPrt4by3bgyTgs%2BCAWnAFqtzb4XPDH6ia65FfTCanGpls5a8MGl%2FDWAgXWEZHkoVLw1qN0igxJVA2QDFqWs%2Fu5TGMht94Fp53lbEYEPnSj%2FjqktgFfgt8ZDY%2FLecE3IWxJJskL4KtBipyOW9I61q5JCHTrTfhYgrJNUhs0tJm7Z4OcXXdiDKrQL3DqYfe1PR2sba3yfROz3iZl%2BRD3mjm7cV5Dv1LBa2UJOLu7Lvj%2F9UAMdT2C4ViNR5keX65yqOuLWmerPBWgBt05UlmHpoUiMjv44hO1cIcUFIaCpyLNIpFHg6wSuRwKKbI4TfN%2FnC2OjvwxeHD6nH2rA4jkbVUtosVDWXH2dEqsA%2FBjPrKf7r8Hc76xOqXRe9GocB6%2BfzHrqO6hEjB0efDpr1KbJN8VT4%2FXnx9s%2Bgk%3D&RelayState=https%3A%2F%2Fjenkins-oc.uscc.com%2FsecurityRealm%2FfinishLogin
+     
+    Steps: Jenkins --> JenkinsProd --> SCM --> Data Integration --> Data Integration Release --> system name --> tag 
+           --> click current release version --> it will start deploying --> Build is created
+           Build automatically gets save in JFrog. See builds in Jfrog.    
+
+JFROG TOOL
+17. Jfrog: Artifactory --> Artifacts --> Repository Name(is-generic-dev/is-generic-qa/is-generic-prod) --> System name --> Latest Build
+           
+     NOTE: Check latest build version in CDA if it is reflecting or not so as to deploy in prod.
+ 
+CDA TOOL
+21. Testing in DEV. before deployment in Prod. to check if the changes reflects:
+    
+    We bring latest build from JFrog to DEV after changes are done for testing.
+    
+    Steps: 
+    
+    Run CDA: Search system name --> Check latest build -->Double Click on "DEPLOY" --> Click Execute --> Schedule Workflow Execution Popup will display
+      Workflow:	                    DI wdh_bill_feed DEPLOY(System Name)
+      Profile*:	                    DeployToDEV1(Enviornment to Deploy)
+      Package*:	                    1.1.0(Check Latest Version)
+      Starts*:                      'Now'   At...   In queue...(Option by default)
+      Manual confirmation required:	 yes  'no'(Option by default)
+      Installation Mode:	        'Overwrite existing Components'   Skip existing Components(Always 'Overwrite existing Components')
+    
+    Execute --> Monitor Workflow
+    
+    Run fails Steps:
+    Double click on the workflow component and you will get to know exactly where is the issue,
+    then go to option:- MODIFY --> Cancel Recursive(To cancel job)
+    
+    Again rerun the workflow with same process once issue is fixed.
+    
+    Testing Methods: 
+    
+UNIX TOOL   
+    * Check the reflected changes in respective file through UNIX:
+   
+      Commands: 
+              1. sudo su - dioper
+              2. cd ..
+              3. cd diown
+              4. cd system_name
+              5. cd file path
+              6. cat file
+      
+      See if changes are reflected or not.
+      
+    * Steps to run informatica mappings through UNIX for testing workflow:
+      
+      Process Name - tu_customer_credit_inquiry_load 
+      
+      Bring latest file from prod to local using below command-
+      Secure File Transfer Protocol (sftp command to local from prod) - sftp vniko001@kpr01infa1:/informatica_10.4/diown/credit_decisioning/archive/in/daily_vmreportuscellular_20250905.txt%%20250905.043634.gz /home/vniko001
+                                                                       (Run this in dev server directly and change username and filepath as per requirement)
+       
+      If your file_name contains some invalid characters and it is difficult to pick file from folder because of non matching pattern, rename file using below command-  
+      Rename file_name command -  
+                              for file in *.txt%%*; do
+                                newname=$(echo "$file" | sed 's/\.txt%%.*$/.txt/')
+                                mv "$file" "$newname"
+                              done
+      
+      Once the file is in local home folder in .gz format then unzip it using below command-    
+      Unzip file command - gunzip daily_vmreportuscellular_20250905.txt%%20250905.043634.gz
+      
+      Once the file is unzipped and .gz format is removed, now copy the file from local folder to DEV enviornment in "IN" folder using below command-
+      Copy file command - cp /home/vniko001/daily_vmreportuscellular_20250905.txt /apps/diown/credit_decisioning/in
+      
+      Once the latest file is in DEV enviornment, run below script(find in tws file) to connect to informatica and run respective workflow-
+      Mapping run command - . /apps/diown/env/config/di.env; /apps/diown/util/bin/process_launcher.pl -ptu_customer_credit_inquiry_load
+      
+      INFORMATICA MONITOR - Check in monitor if the running workflow is succeeded or failed. If failed then debug the issue and go through same process as above.
+      
+      NOTE: Check if every tool along with informatica is closed or not of every team members. Always create alert internally to team members 
+      to close all apps in VDI so as to avoid any failure while deploying to DEV.
+
+    * Steps to generate process_launcher entry:
+    
+      1.diown:/apps/diown/Majid_Onboarding_Excercis/sql->. /apps/diown/env/config/di.env;
+      2.diown:/apps/diown/Majid_Onboarding_Excercis/sql->sqlplus /@BODS_DI_APP
+      3.SQL> @bods-SYSTEM-PROCESSNAME-dml.sql
+
+BMC REMEDY TOOL
+18. CRQ(Change Request) Ticket Creation using SMART System:
+
+    CRQ000000864863: Standard Change Sample Ticket
+    CRQ000000869129: Code Retirement Sample Ticket
+    
+    Installment Plan Amdocs Sharepoint Link: https://amdocs.sharepoint.com/:f:/r/sites/USCCEWDandPREDevRecordings/Shared%20Documents/USCC%20Training%20Recording/DI%20Internal%20Team%20Documents/CRQ?csf=1&web=1&e=11O4fp
+    
+    CRQ Generate Link: https://remedyweb.int.usc.local:8443/arsys/forms/remedyprod/SHR%3ALandingConsole/Default+Administrator+View/?cacheid=bf3d48d8
+
+    Steps to create New CRQ:
+    Cell Site --> Resource Center --> SMART - Service Management --> Applications --> Change Management --> New Change --> By default CRQ Ticket number generate
+
+    Confluence Reference: CRQ Guidelines Doc. to refer type of CRQs 
+    Link: https://confluence.uscc.com/spaces/IS/pages/136022408/CRQ+Guidelines
+ 
+    CAB(Change Management Team) which review the CRQ ticket and approve it.
+    
+    Note: In Remedy we need to add time in IST and in IP we need to add time in CT. Match the IP schedule start and end with CRQ schedule start and end time.
+
+    Normal Change Thumbrule:
+    
+    -Give 24 hrs to CAB to approve the changes.
+    -The day we want to deploy the changes in prod so we need to get it approved by CAB a day before that.
+     Suppose we want to deploy changes on Monday but latest CAB meeting is on thursday so we need to get it approved
+     by Thursday as no CAB meetings are on Friday.
+    -Trinadh Yannamani is the Manager who approves and then it goes to CAB Team.
+    
+    Sections to be filled in form:
+    
+    A form like structure will come where you have to fill details. By default Group name and Coordinator will mention in that form:-
+    
+    .Class: Type of change like Normal/Standard. For Standard change we have built-in template. So click in template and select defined template type. 
+            Template is created so as reduce rework. In our case, we picked S153 template. Never club standard config CRQ with standard retirement CRQ.
+    
+    .Change Manager: Trinadh Yannamani
+    
+     For Normal Changes, Email recieved as 'Change is approved by Trinadh Yannamani and also a schedule when to attend CAB Meeting' 
+    
+    .Notes: Do not change default note and in continue to that pick the change format details from confluence and mention in NOTES Section.
+            Add Build Name as 'Sytem_Name-Version_Number'.
+    
+    .Work Detail:
+                 Standard CRQ Template - 'Infra Workplan'
+                 Team representative - Haritha Venkatesan
+                 Fence Environment - To stop new instances job(No new jobs will run) only for sequal jobs.
+                 IT-Infra Operations form is to request fence the enviornment.
+    
+    .Date/System: Scheduled Start Date+ - set START date and time (time mostly at 8:30/9:30 P.M. IST )
+                  Scheduled End Date+ - set END date and time (End time as per IP Plan)
+                  Actual Start Date+ - set START date and time (time mostly at 8:30/9:30 P.M. IST ) at time of closing CRQ
+                  Actual End Date+ - set END date and time (End time as per IP Plan) at time of closing CRQ
+                  completed Date - END Date generates automatically when deployment is completed at time of closing CRQ
+    
+    Back out Plan: If deployment fails then we will be deploying previous version.
+    
+    --> Back to 'Work Detail Section' as mentioned above. 
+    
+    .Work Info Type: Install Plan(For standard Changes)
+    
+    .Attachment: 'Infra Workplan' Doc. 
+    
+    Click 'Add'
+    
+    Note: No CAB meetings on friday
+
+    
+USCellular MAIL
+19. CRQ approval mail: After CRQ approval build is copied from is-generic-qa to is-generic-prod folder in Jfrog. 
+                       Upon CRQ approval, send email to Release Management (USCDLPDSReleaseGovernance@uscellular.com;usccreleasemanagers@amdocs.com) team 
+                       requesting promotion of build (PROMOTE) from the JFrog QA repository to PROD repository.
+
+                       Mail Format:
+                                    Hi Release Governance,
+                                    
+                                    Please upload the below builds to JFrog production.
+                                    
+                                    revenue_recognition_pob-2.5.0
+                                    revenue_recognition_ref-3.2.0
+                                    outperform_sales_commission-8.6.0
+                                    revenue_recognition_recon-2.1.0
+                                    notification_hub-16.4.0
+                                    event_pub_installment_plan-10.2.0
+                                    
+                                    Regards,
+                                    Haritha Venkatesan
+                                    Data Integration
+                        
+20. Checkpoint: Perform below steps as per CRQ Scheduled time i.e. 10:00 A.M. CT(8:30 P.M. IST)
+
+IT - INFRA OPS SUPPORT REQUEST TOOL
+22. Fencing:
+     Link to raise FENCE Request: https://isoc.uscc.com/supportrequestform.php --InfraOps 
+     
+     PRE-Check Fence(Hold) If job is CYCLIC or NOT:
+     Always check if we require fencing or not for your system based on if the job is cyclic(check in 'process_run_detail' table) so as to fence the workstation to avoid job failure while deploying to prod. 
+     If fencing is required then write it in IP plan doc. along with unfencing. In case of fencing, do not schedule the CDA deployment, deploy it manually via CDA TOOL.
+     (example : Notification_Hub is cyclic hence always fence it before deploying)
+     (99% cyclic job failure's chances if workstation is not fenced) 
+        
+     SQL: select round(1440 *( sysdate - prd.run_start_date ), 2) AS duration_in_minutes_thus_far, prd.*
+          from process_run_detail prd
+          where prd.status not in ('FAILED', 'SUCCEEDED') and system ='<your system>'
+          and prd.run_start_date > sysdate - 1
+          order by prd.run_start_date desc;
+          
+          select * from process_run_detail where system=' ' order by run_start_date desc;
+          
+          select * from  process_run_detail where system = 'notification_hub' and process_name = 'promo_credit_failed_notifications_load' order by run_start_date desc;
+     
+    Highly Important: After fencing we will first check 'PROCESS_RUN_DETAIL' table status by verifying status of job in the actual informatica prod folder is STARTED/COMPLETED, 
+                      if it is in running state then let it complete and also check tws workstation status by verifying if the request for fence/unfence completed or not,
+                      which defines fence limit value "100" if fenced else "0" if unfenced in TWS Schedular.
+                      
+                      TWS Link: https://dwc.uscc.com/console/  ---TWS   
+                       
+    Once fence request is  raised, will get below MAIL FORMAT:
+     
+     Hi neha yadav,
+     
+     IT - Infra Operations Response:
+     
+     Your request has been completed.
+     
+     If you have additional questions please reply to this email.
+     
+     The below is a summary of the actions taken:
+     
+     Ticket Number: 40977
+     
+     Perform: Immediately
+     Environment: PROD
+     Option: Other
+     
+     KPR01INFA1
+     
+     Request Type: Fence
+     Details:
+       
+       please fence workstation : KPR01INFA1
+       Thanks for using the IT - Infra Operations request form,
+       IT - Infra Operations
+       
+       IT - Infra Operations Request Form
+
+CDA TOOL
+23. Deploy to Prod Using CDA:
+
+    Steps:
+          CDA --> System Name --> Build(Latest System Version) --> Deploy --> Execute --> Change from 'DeployToDev1' to 'DeployToProd' Check latest Build --> Overwrite existing Components
+          --> Execute --> waiting for approval(Additional Approval by Trinadh/Sneha/Carol for Prod Deployment to double check to avoid failure)
+          --> Monitor Workflow
+          
+          Note: Mail will be sent to Approver to run in prod.
+
+GITHUB TOOL
+24. GITHUB: 
+
+    Steps:
+          System --> Pull Request --> Click on recent pull request with Jira Label --> Squash and Merge --> Confirm Squash and Merge(Merging into Master Branch)
+          --> Delete old branch --> Back to System --> Releases(Latest Release) --> Edit (To convert from 'Pre-Release' to Latest) --> Uncheck 'Set as Pre-Release'
+          and Check 'Set as the Latest Release' --> Update release
+          
+          Our Release becomes latest release now.
+
+    NOTE: If code deployment fails in Prod. we will do 'Cancel_Recursive' and deploy previous build.
+
+IT - INFRA OPS SUPPORT REQUEST TOOL
+25. Unfencing: If any job is fenced then do unfencing the same way as we did in fencing process. We need to raise InfraOps request to unfence the job.
+
+BMC REMEDY TOOL
+26. Closing of CRQ: Close the CRQ in the same link from where we raised it and make sure we close it around expected scheduled end time in IP Plan document.
+                    
+    CRQ Generate Link: https://remedyweb.int.usc.local:8443/arsys/forms/remedyprod/SHR%3ALandingConsole/Default+Administrator+View/?cacheid=bf3d48d8
+
+        Mention Date and Time in given below section as per time defined in Install Plan:-
+         .Date/System:
+                    Actual Start Date+ - set START date and time (time mostly at 8:30/9:30 P.M. IST ) at time of closing CRQ
+                    Actual End Date+ - set END date and time (End time as per IP Plan) at time of closing CRQ
+                    completed Date - END Date generates automatically when deployment is completed at time of closing CRQ
+
+27. Validation:
+DML/Databas(PROD) Validation to validate the changes.
+
+Team Members Mail ID List:
+    Trinadh.Yannamani@uscellular.com
+    SnehaChandra.Yalamarty@uscellular.com
+    Carol.Paolantino@uscellular.com
+    Haritha.Venkatesan@uscellular.com
+    Rahul.Salve@amdocs.com
+    nehayad@amdocs.com
+    vibhan@amdocs.com
+    mrunalsp@amdocs.com
+    Sanket.Ashok-Dhamane@amdocs.com
+    Tuushar.Vijaykumar-Kalokkhe@amdocs.com
+    Majid.Shaikh@amdocs.com
