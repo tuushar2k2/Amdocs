@@ -1,0 +1,66 @@
+USCELLULAR Details:
+Tuushar V Kalokkhe
+Tuushar.kalokkhe@uscellular.com
+Employee ID: 940420 
+LAN ID: tkalo001
+PWD: ,+pUU]Nxxp9c
+PWD: SatKabir$$55
+
+
+pwd of Windows Hello
+$atKabir$$$$$55555    (1:13 PM 4/13/2026)
+
+
+Questions:
+Pet Name: Sondya
+Childhood Nick Name: Gotya
+
+Amdocs AI Regarding Accounts Details:
+https://doxana/
+
+Samsung F16 A15 A14
+
+front END hue : https://ilscha03-cem-dev-hutility.cem.uscc.com:8889/hue/editor?editor=336927&type=hive 
+
+DI Environment: DB, Putty,Informatica
+https://confluence.uscc.com/spaces/IS/pages/184058159/DI+Environments
+
+Sign In Central
+https://SignInCentral.uscellular.com
+
+BSO Account MFA
+http://gssnaweb1/
+BSO PWD Change Link:
+https://cmiisimprdweb:9082/itim/ui/Login.jsp
+
+
+Citrix Link:
+https://citrix-admin-gw.uscc.com/Citrix/ADMIN_GWWeb/
+
+Amdocs Time zone Link:
+https://tz.mis.amdocs.com/weekly-report
+
+Amdocs Product Documentation:
+https://docs.product.mis.amdocs.com/
+
+My Group Link:
+https://jam4.sapjam.com/groups
+
+USCC Share point Link:
+https://amdocs.sharepoint.com/:f:/r/sites/USCCEWDandPREDevRecordings/Shared%20Documents/USCC%20Training%20Recording?csf=1&web=1&e=kH0V5u
+
+USCC Service Now Link:
+https://amdocsprodmain.service-now.com/nav_to.do?uri=%2Fhome.do
+
+Project and Leads:
+EPS & DI :  Neha Yadav (nehayad@amdocs.com), Sarvesh Kumar Gangrade (sarvesga@amdocs.com)
+EEP : Sonal Kaustubh Wade (sonakale@amdocs.com)
+EDW2.0 : Shubham Vijay Kamble (shubhvij@amdocs.com) , Ujwala Surwase (ujwala.surwase@amdocs.com)
+EPM : Dheeraj Davkhar (dheerada@amdocs.com), Sunil Sharma (sunsharm@amdocs.com)
+Escalations/Management : Hagit Rejiniano (hagitre@amdocs.com)
+
+
+Hello , I’ll be on vacation for today. During this time, I may not check my email frequently. Please send an email on For urgent matters, please contact on my cell phone. Otherwise, I’ll respond when I return. In my absence, please contact :  Informatica Admin - send email to USCDL Informatica Admin  Talend Admin:-send email on USCDL Informatica Admin . Escalations - Mohammed Kaleem Farooq  Thank you for understanding. Thanks & Regards, Sudhir Date     India +91 9890517621
+
+*USCC EDW Development team <USCCEDWDevelopmentteam@amdocs.com>
+*USCC EDW Testing Team <USCCEDWTestingTeam@amdocs.com>
